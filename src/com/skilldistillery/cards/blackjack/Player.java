@@ -4,6 +4,7 @@ import com.skilldistillery.cards.common.Card;
 
 public class Player {
 	protected BlackJackHand hand = new BlackJackHand();
+	private int betMoney = 50;
 	
 	public Player(){};
 	
@@ -32,11 +33,19 @@ public class Player {
 	}
 	
 	public boolean scoreOfTwentyOne() {
-		if(hand.getHandValue() == 21) {
+		if(hand.getHandValue() == BlackJackHand.BLACKJACKNUMBER) {
 			return true;
 		}else {
 			return false;
 		}
+	}
+
+	public int getBetMoney() {
+		return betMoney;
+	}
+
+	public void setBetMoney(int betMoney) {
+		this.betMoney += betMoney;
 	}
 	
 

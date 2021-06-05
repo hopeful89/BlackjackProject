@@ -5,8 +5,12 @@ import java.util.List;
 
 import com.skilldistillery.cards.common.Card;
 import com.skilldistillery.cards.common.Hand;
+import com.skilldistillery.cards.common.Rank;
 
 public class BlackJackHand extends Hand{
+	public static final int BLACKJACKNUMBER = 21;
+	private final int aceRankValue = Rank.ACE.getValue();
+	private final int removeSoftAce = 10;
 	private int addedCards = 0;
 	
 	public BlackJackHand() {
@@ -15,22 +19,40 @@ public class BlackJackHand extends Hand{
 
 	@Override
 	public int getHandValue() {
+		boolean isSoft = false;
+		int numOfAces = 0;
 		int value = 0;
+		//get value and establish if there are aces in hand
 		for (Card card : super.cards) {
 			value += card.getValue();
+			if(card.getValue() == aceRankValue) {
+				isSoft = true;
+				numOfAces++;
+			}
 		}
-		// change here or in isSoft to see push from Blackjack on both sides
-		return isSoft(value);
-		
+		if(value > BLACKJACKNUMBER && isSoft) {
+			return isSoft(value, numOfAces);
+		}
+		return value;
 	}
+	
+	//determine is value exceeds 21 and ace in hand - 10 or return supplied value
+	public int isSoft(int value, int numOfAces) {
+		while(value > BLACKJACKNUMBER && numOfAces > 0) {
+			value -= removeSoftAce;
+			numOfAces--;
+		}
+		return value;
+	}
+
 	
 	//if no cards dealt beyond initial draw and 21 in hand
 	public boolean isBlackJack() {
-		return getHandValue() == BlackJackApp.BLACKJACKNUMBER && addedCards < 3;
+		return getHandValue() == BLACKJACKNUMBER && addedCards < 3;
 	}
 	//hand value greater than 21
 	public boolean isBust() {
-		return getHandValue() > BlackJackApp.BLACKJACKNUMBER;
+		return getHandValue() > BLACKJACKNUMBER;
 	}
 	
 	@Override
@@ -45,20 +67,4 @@ public class BlackJackHand extends Hand{
 		return clonedCards;
 	}
 	
-	public int isSoft(int value) {
-		int aceValue = 11;
-		boolean aceInHand = false;
-		
-		for (Card card : super.cards) {
-			if(card.getValue() == aceValue) {
-				aceInHand = true;
-			}
-		}
-		if(value > BlackJackApp.BLACKJACKNUMBER && aceInHand) {
-			System.out.println("Soft Ace Activated");
-			return value - 10;
-		}
-		return value;
-	}
-	//TODO Options  isSoft()  isHard()
 }
