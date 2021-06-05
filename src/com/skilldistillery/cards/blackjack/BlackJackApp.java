@@ -17,6 +17,7 @@ public class BlackJackApp {
 		Dealer dealer = new Dealer();
 		boolean playerTurn = true;
 		boolean dealerTurn = true;
+		boolean playerIsPlaying = true;
 
 		dealCardsStart(player, dealer);
 		// check for blackjack on draw for player
@@ -46,13 +47,14 @@ public class BlackJackApp {
 	}
 
 	public static void winnerAnnouncement(Player player, Dealer dealer) {
-
-		// think about player win conditions
 		boolean pushedHand = player.declareBlackJack() && dealer.declareBlackJack()
 				|| dealer.handValue() == player.handValue();
+		
 		boolean playerBlackJack = player.declareBlackJack() && !dealer.declareBlackJack();
+		
 		boolean playerWins = dealer.isBust() && !player.isBust()
 				|| !dealer.declareBlackJack() && (player.handValue() > dealer.handValue() && !player.isBust());
+		
 		if (playerBlackJack) {
 			System.out.println("BLACKJACK!!!!");
 
@@ -60,6 +62,8 @@ public class BlackJackApp {
 			System.out.println("You beat the dealer. Get your chips.");
 		} else if (pushedHand) {
 			System.out.println("Its a push");
+		} else if (dealer.declareBlackJack()) {
+			System.out.println("Dealer hit blackjack. You lose.");
 		} else {
 			System.out.println("Dealer wins.");
 		}
@@ -116,7 +120,7 @@ public class BlackJackApp {
 			player.addCardToHand(dealer.dealCard());
 			player.lookAtHand();
 			dealer.addCardToHand(dealer.dealCard());
-			dealer.lookAtHand();
+			dealer.handAtDeal();
 			--startCount;
 		}
 
