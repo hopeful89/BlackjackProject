@@ -9,7 +9,6 @@ import com.skilldistillery.cards.common.Rank;
 
 public class BlackJackHand extends Hand{
 	public static final int BLACKJACKNUMBER = 21;
-	private final int aceRankValue = Rank.ACE.getValue();
 	private final int removeSoftAce = 10;
 	private int addedCards = 0;
 	
@@ -25,7 +24,7 @@ public class BlackJackHand extends Hand{
 		//get value and establish if there are aces in hand
 		for (Card card : super.cards) {
 			value += card.getValue();
-			if(card.getValue() == aceRankValue) {
+			if(card.getValue() == Rank.ACE.getValue()) {
 				isSoft = true;
 				numOfAces++;
 			}
@@ -65,6 +64,10 @@ public class BlackJackHand extends Hand{
 		List<Card> clonedCards = new ArrayList<>();
 		clonedCards.addAll(super.cards);
 		return clonedCards;
+	}
+	
+	public void resetAddedCardsForNewGame() {
+		addedCards = 0;
 	}
 	
 }

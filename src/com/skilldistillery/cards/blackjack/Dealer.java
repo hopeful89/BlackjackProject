@@ -5,6 +5,7 @@ import com.skilldistillery.cards.common.Deck;
 
 public class Dealer extends Player {
 	private Deck dealerDeck = new Deck();
+	private int minimumDeckSize = 15;
 
 	public Dealer() {
 		super();
@@ -28,6 +29,12 @@ public class Dealer extends Player {
 			}else {
 				System.out.println("Dealer: Hidden, " + "" + hand.getCards().get(hand.getCards().size() - 1).toString());
 			}
+	}
+
+	public void getNewDeck() {
+		if(dealerDeck.getDeckSize() < minimumDeckSize) {
+			dealerDeck = new Deck();
+		}
 	}
 
 }

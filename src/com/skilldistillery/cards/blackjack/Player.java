@@ -17,6 +17,7 @@ public class Player {
 	}
 	
 	public void foldHand() {
+		hand.resetAddedCardsForNewGame();
 		hand.clearHand();
 	}
 	
@@ -44,8 +45,12 @@ public class Player {
 		return betMoney;
 	}
 
-	public void setBetMoney(int betMoney) {
-		this.betMoney += betMoney;
+	public void winBetMoney(int betMoney) {
+		this.betMoney += (betMoney * 2) ;
+	}
+	
+	public void loseBetMoney(int betMoney) {
+		this.betMoney -= betMoney;
 	}
 	
 

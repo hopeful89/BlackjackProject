@@ -1,36 +1,44 @@
 package com.skilldistillery.cards.blackjack;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class BlackJackApp {
+	private Player player = new Player();
+	private Dealer dealer = new Dealer();
+	private Scanner kb = new Scanner(System.in);
+	private int playerBet = 0;
 
 	public static void main(String[] args) {
-		Scanner kb = new Scanner(System.in);
 		BlackJackApp app = new BlackJackApp();
-		app.launch(kb);
-		kb.close();
+		app.launch();
+		app.kb.close();
 	}
 
-	private void launch(Scanner kb) {
+	private void launch() {
 		// Game loop
 		boolean playerIsPlaying = true;
-		Player player = new Player();
+		
+		System.out.println("*******************Welcome to BlackJack*******************");
+		
 		while (playerIsPlaying) {
 			
-			// Instantiate new player/dealer for each game
-			
-			Dealer dealer = new Dealer();
 
 			// Stop looping each sides turn when false
 			boolean playerTurn = true;
 			boolean dealerTurn = true;
-
-			dealCardsStart(player, dealer);
+			
+			System.out.println("Dealer approches and shuffles the deck");
+			System.out.println();
+			
+			//get player bet and deal cards
+			playerBet();
+			dealCardsStart();
 
 			// if player hand is not blackjack
 			if (!player.declareBlackJack()) {
 				while (playerTurn && !player.isBust() && !player.scoreOfTwentyOne()) {
-					playerTurn = playerTurn(kb, player, dealer);
+					playerTurn = playerTurn();
 				}
 				if (player.isBust()) {
 					currentValue(player);
@@ -41,25 +49,46 @@ public class BlackJackApp {
 					System.out.println();
 				}
 			}
-			// if the dealer nor the player has declared blackjack and player hand is not
+			// if the dealer and the player has not declared blackjack and player hand is not
 			// bust
 			if (!dealer.declareBlackJack() && !player.declareBlackJack() && !player.isBust()) {
 				while (dealerTurn && !dealer.isBust()) {
-					dealerTurn = dealerTurn(dealer);
+					dealerTurn = dealerTurn();
 				}
 				if (dealer.isBust()) {
 					System.out.println("Dealer is BUST");
 				}
 			}
 			// declare winner of hand
-			winnerAnnouncement(player, dealer);
+			winnerAnnouncement(playerBet);
 
 			// check if player wishes to continue playing
 			playerIsPlaying = playAgain(kb);
-			player.foldHand();
+			resetGameToStart();
 		}
 	}
+
 	// does player want to continue
+	private void playerBet() {
+		System.out.println("//////////////////////////////");
+		System.out.println("\t You have $" + player.getBetMoney());
+		System.out.println("//////////////////////////////");
+		
+		while(playerBet == 0) {
+			try {
+				System.out.print("Please enter your wager: ");
+				System.out.println();
+				playerBet = Integer.parseInt(kb.nextLine());
+				if(playerBet > player.getBetMoney()) {
+					throw new IllegalArgumentException("You tried to bet more than you have");
+				}
+			} catch (IllegalArgumentException e) {
+				playerBet = 0;
+				System.out.println(e.getMessage());
+				continue;
+			}
+		}
+	}
 
 	private boolean playAgain(Scanner kb) {
 		String userChoice = "";
@@ -78,7 +107,7 @@ public class BlackJackApp {
 	}
 
 	// who won this hand
-	public static void winnerAnnouncement(Player player, Dealer dealer) {
+	public void winnerAnnouncement(int playerBet) {
 		// both dealer and player have BJ or hands are equal in value
 		boolean pushedHand = player.declareBlackJack() && dealer.declareBlackJack()
 				|| dealer.handValue() == player.handValue();
@@ -99,24 +128,28 @@ public class BlackJackApp {
 			System.out.println();
 			System.out.println("The dealer hand was");
 			dealer.lookAtHand();
+			player.winBetMoney(playerBet * 2);
 
 		} else if (playerWins) {
 			System.out.println();
 			System.out.println("You beat the dealer. Get your chips.");
+			player.winBetMoney(playerBet);
 		} else if (pushedHand) {
 			if (player.declareBlackJack() && dealer.declareBlackJack()) {
 				System.out.println();
 				System.out.println("DOUBLE BLACKJACK");
 			}
 			System.out.println("Its a push");
-		} else if (dealer.declareBlackJack() && !player.isBust()) {
+		} else if (dealer.declareBlackJack()) {
 			System.out.println("Dealer hit blackjack. You lose.");
+			player.loseBetMoney(playerBet);
 		} else {
 			System.out.println("DEALER WINS");
+			player.loseBetMoney(playerBet);
 		}
 	}
 
-	private boolean dealerTurn(Dealer dealer) {
+	private boolean dealerTurn() {
 		if (dealer.handValue() < 17) {
 			dealer.addCardToHand(dealer.dealCard());
 			dealer.lookAtHand();
@@ -139,11 +172,11 @@ public class BlackJackApp {
 		System.out.println();
 	}
 
-	public boolean playerTurn(Scanner kb, Player player, Dealer dealer) {
+	public boolean playerTurn() {
 		String userChoice = "";
 		System.out.println("********************************************");
 		currentValue(player);
-		System.out.print("Would you like to hit or stay? ");
+		System.out.print("Would you like to hit, stay, double down(dd)? ");
 		userChoice = kb.nextLine();
 		System.out.println();
 
@@ -152,17 +185,24 @@ public class BlackJackApp {
 			player.lookAtHand();
 			return true;
 		} else if (userChoice.equalsIgnoreCase("Stay")) {
-			return false;
-		} else {
+			return false;	
+		} else if(userChoice.equalsIgnoreCase("dd")) {
+			playerBet *= 2;
+			player.addCardToHand(dealer.dealCard());
+			player.lookAtHand();
+			if(!player.isBust()) {
+				return true;
+			}else {
+				return false;
+			}
+		}
+		else {
 			System.out.println("Invalid response");
 			return true;
 		}
 	}
 
-	public void dealCardsStart(Player player, Dealer dealer) {
-		System.out.println("Welcome to BlackJack");
-		System.out.println("Dealer approches and shuffles the deck");
-		System.out.println();
+	public void dealCardsStart() {
 
 		int startCount = 2;
 		// comment out the shuffle to see the soft ace activate if not seen during
@@ -177,6 +217,13 @@ public class BlackJackApp {
 			--startCount;
 		}
 
+	}
+	//clears each hand, gets a new deck if below dealer threshold, resets bet
+	public void resetGameToStart() {
+		dealer.getNewDeck();
+		player.foldHand();
+		dealer.foldHand();
+		playerBet = 0;
 	}
 
 }
