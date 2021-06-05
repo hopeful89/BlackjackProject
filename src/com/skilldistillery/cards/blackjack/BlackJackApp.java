@@ -1,6 +1,5 @@
 package com.skilldistillery.cards.blackjack;
 
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class BlackJackApp {
@@ -18,20 +17,20 @@ public class BlackJackApp {
 	private void launch() {
 		// Game loop
 		boolean playerIsPlaying = true;
-		
-		System.out.println("*******************Welcome to BlackJack*******************");
-		
-		while (playerIsPlaying) {
-			
 
+		System.out.println("*******************Welcome to BlackJack*******************");
+
+		while (playerIsPlaying && player.getBetMoney() > 0) {
+			System.out.println(dealer.getBetMoney());
 			// Stop looping each sides turn when false
 			boolean playerTurn = true;
 			boolean dealerTurn = true;
-			
+
 			System.out.println("Dealer approches and shuffles the deck");
+			System.out.println("Current deck count: " + dealer.getDeckCount());
 			System.out.println();
-			
-			//get player bet and deal cards
+
+			// get player bet and deal cards
 			playerBet();
 			dealCardsStart();
 
@@ -49,7 +48,8 @@ public class BlackJackApp {
 					System.out.println();
 				}
 			}
-			// if the dealer and the player has not declared blackjack and player hand is not
+			// if the dealer and the player has not declared blackjack and player hand is
+			// not
 			// bust
 			if (!dealer.declareBlackJack() && !player.declareBlackJack() && !player.isBust()) {
 				while (dealerTurn && !dealer.isBust()) {
@@ -60,12 +60,20 @@ public class BlackJackApp {
 				}
 			}
 			// declare winner of hand
-			winnerAnnouncement(playerBet);
+			winnerAnnouncement();
 
 			// check if player wishes to continue playing
-			playerIsPlaying = playAgain(kb);
-			resetGameToStart();
+			if (player.getBetMoney() <= 0) {
+				System.out.println("***********************************************");
+				System.out.println("The dealer took all your money and ran. GoodBye");
+				System.out.println("***********************************************");
+				break;
+			} else {
+				playerIsPlaying = playAgain();
+				resetGameToStart();
+			}
 		}
+
 	}
 
 	// does player want to continue
@@ -73,13 +81,13 @@ public class BlackJackApp {
 		System.out.println("//////////////////////////////");
 		System.out.println("\t You have $" + player.getBetMoney());
 		System.out.println("//////////////////////////////");
-		
-		while(playerBet == 0) {
+
+		while (playerBet == 0) {
 			try {
 				System.out.print("Please enter your wager: ");
 				System.out.println();
 				playerBet = Integer.parseInt(kb.nextLine());
-				if(playerBet > player.getBetMoney()) {
+				if (playerBet > player.getBetMoney()) {
 					throw new IllegalArgumentException("You tried to bet more than you have");
 				}
 			} catch (IllegalArgumentException e) {
@@ -90,7 +98,7 @@ public class BlackJackApp {
 		}
 	}
 
-	private boolean playAgain(Scanner kb) {
+	private boolean playAgain() {
 		String userChoice = "";
 		System.out.println();
 		System.out.println("*****************");
@@ -102,12 +110,13 @@ public class BlackJackApp {
 		if (userChoice.equalsIgnoreCase("Y") || userChoice.equalsIgnoreCase("Yes")) {
 			return true;
 		} else {
+			System.out.println("GooooodBye!");
 			return false;
 		}
 	}
 
-	// who won this hand
-	public void winnerAnnouncement(int playerBet) {
+	// who won this hand of BJ
+	public void winnerAnnouncement() {
 		// both dealer and player have BJ or hands are equal in value
 		boolean pushedHand = player.declareBlackJack() && dealer.declareBlackJack()
 				|| dealer.handValue() == player.handValue();
@@ -174,6 +183,7 @@ public class BlackJackApp {
 
 	public boolean playerTurn() {
 		String userChoice = "";
+		
 		System.out.println("********************************************");
 		currentValue(player);
 		System.out.print("Would you like to hit, stay, double down(dd)? ");
@@ -185,25 +195,26 @@ public class BlackJackApp {
 			player.lookAtHand();
 			return true;
 		} else if (userChoice.equalsIgnoreCase("Stay")) {
-			return false;	
-		} else if(userChoice.equalsIgnoreCase("dd")) {
+			return false;
+		} else if (userChoice.equalsIgnoreCase("dd") && player.getBetMoney() > playerBet * 2) {
 			playerBet *= 2;
 			player.addCardToHand(dealer.dealCard());
 			player.lookAtHand();
-			if(!player.isBust()) {
+			if (!player.isBust()) {
 				return true;
-			}else {
+			} else {
 				return false;
 			}
-		}
-		else {
+		} else if (userChoice.equalsIgnoreCase("dd") && !(player.getBetMoney() > playerBet * 2)) {
+			System.out.println("Not enough money to double down");
+			return true;
+		} else {
 			System.out.println("Invalid response");
 			return true;
 		}
 	}
 
 	public void dealCardsStart() {
-
 		int startCount = 2;
 		// comment out the shuffle to see the soft ace activate if not seen during
 		// gameplay keep hitting to see the second as well
@@ -216,14 +227,13 @@ public class BlackJackApp {
 			dealer.handAtDeal();
 			--startCount;
 		}
-
 	}
-	//clears each hand, gets a new deck if below dealer threshold, resets bet
+
+	// clears each hand, gets a new deck if below dealer threshold, resets bet
 	public void resetGameToStart() {
 		dealer.getNewDeck();
 		player.foldHand();
 		dealer.foldHand();
 		playerBet = 0;
 	}
-
 }

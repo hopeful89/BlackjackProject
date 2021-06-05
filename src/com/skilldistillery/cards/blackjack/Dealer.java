@@ -36,5 +36,9 @@ public class Dealer extends Player {
 			dealerDeck = new Deck();
 		}
 	}
+	
+	public int getDeckCount() {
+		return dealerDeck.getDeckSize();
+	}
 
 }
