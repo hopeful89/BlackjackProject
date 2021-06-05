@@ -17,12 +17,16 @@ public class Dealer extends Player {
 	public void shuffleDeck() {
 		dealerDeck.shuffle();
 	}
+	@Override
+	public void lookAtHand() {
+		System.out.println("Dealer: " + hand.toString());
+	}
 
 	public void handAtDeal() {
 			if (hand.getCards().size() == 1) {
 			System.out.println("Dealer: Hidden");
 			}else {
-				System.out.println("Dealer: Hidden, " + "" + hand.getCards().get(0).toString());
+				System.out.println("Dealer: Hidden, " + "" + hand.getCards().get(hand.getCards().size() - 1).toString());
 			}
 	}
 

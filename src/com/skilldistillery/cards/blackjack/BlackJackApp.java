@@ -13,37 +13,62 @@ public class BlackJackApp {
 	}
 
 	private void launch(Scanner kb) {
-		Player player = new Player();
-		Dealer dealer = new Dealer();
-		boolean playerTurn = true;
-		boolean dealerTurn = true;
+		//Game loop
 		boolean playerIsPlaying = true;
-
-		dealCardsStart(player, dealer);
-		// check for blackjack on draw for player
-
-		if (!player.declareBlackJack()) {
-			while (playerTurn && !player.isBust() && !player.scoreOfTwentyOne()) {
-				currentValue(player);
-				playerTurn = playerTurn(kb, player, dealer);
-			}
-			if (player.isBust()) {
-				currentValue(player);
-				System.out.println("Player is BUST");
-			}
+		
+		while(playerIsPlaying) {
+			// Instantiate new player/dealer for each game
+			Player player = new Player();
+			Dealer dealer = new Dealer();
+			
+			// Stop looping each sides turn
+			boolean playerTurn = true;
+			boolean dealerTurn = true;
+			
+			dealCardsStart(player, dealer);
+	
+				if (!player.declareBlackJack()) {
+					while (playerTurn && !player.isBust() && !player.scoreOfTwentyOne()) {
+						playerTurn = playerTurn(kb, player, dealer);
+					}
+					if (player.isBust()) {
+						currentValue(player);
+						System.out.println("Player is BUST");
+					}
+					if(player.scoreOfTwentyOne()) {
+						System.out.println(player.handValue());
+						System.out.println();
+					}
+				}
+		
+				if (!dealer.declareBlackJack() && !player.declareBlackJack() && !player.isBust()) {
+					while (dealerTurn && !dealer.isBust()) {
+						dealerTurn = dealerTurn(dealer);
+					}
+					if (dealer.isBust()) {
+						System.out.println("Dealer is BUST");
+					}
+				}
+				winnerAnnouncement(player, dealer);
+				
+				playerIsPlaying = playAgain(kb);
 		}
+	}
 
-		if (!dealer.declareBlackJack() && !player.declareBlackJack() && !player.isBust()) {
-			while (dealerTurn && !dealer.isBust()) {
-				dealerTurn = dealerTurn(dealer);
-			}
-			if (dealer.isBust()) {
-				dealer.lookAtHand();
-				System.out.println("Dealer is BUST");
-			}
+	private boolean playAgain(Scanner kb) {
+		String userChoice = "";
+		System.out.println();
+		System.out.println("*****************");
+		System.out.println("*  Play Again?  *");
+		System.out.println("*****************");
+		System.out.println("  Y|YES    N|NO  ");
+		userChoice = kb.nextLine();
+		
+		if(userChoice.equalsIgnoreCase("Y") || userChoice.equalsIgnoreCase("Yes")) {
+			return true;
+		} else {
+			return false;
 		}
-
-		winnerAnnouncement(player, dealer);
 	}
 
 	public static void winnerAnnouncement(Player player, Dealer dealer) {
@@ -56,16 +81,23 @@ public class BlackJackApp {
 				|| !dealer.declareBlackJack() && (player.handValue() > dealer.handValue() && !player.isBust());
 		
 		if (playerBlackJack) {
-			System.out.println("BLACKJACK!!!!");
+			System.out.println();
+			System.out.println("*******YOU*******");
+			System.out.println("*******HIT*******");
+			System.out.println("****BLACKJACK****");
+			System.out.println();
+			System.out.println("The dealer hand was");
+			dealer.lookAtHand();
 
 		} else if (playerWins) {
+			System.out.println();
 			System.out.println("You beat the dealer. Get your chips.");
 		} else if (pushedHand) {
 			System.out.println("Its a push");
-		} else if (dealer.declareBlackJack()) {
+		} else if (dealer.declareBlackJack() && !player.isBust()) {
 			System.out.println("Dealer hit blackjack. You lose.");
 		} else {
-			System.out.println("Dealer wins.");
+			System.out.println("DEALER WINS");
 		}
 	}
 
@@ -76,6 +108,7 @@ public class BlackJackApp {
 			currentValue(dealer);
 			return true;
 		} else {
+			System.out.println();
 			dealer.lookAtHand();
 			currentValue(dealer);
 			return false;
@@ -83,17 +116,17 @@ public class BlackJackApp {
 	}
 
 	public void currentValue(Player player) {
-		System.out.println();
 		System.out.println("Current value: " + player.handValue());
+		System.out.println();
 	}
 
 	public boolean playerTurn(Scanner kb, Player player, Dealer dealer) {
 		String userChoice = "";
-
 		System.out.println("********************************************");
-		System.out.println();
+		currentValue(player);
 		System.out.print("Would you like to hit or stay? ");
 		userChoice = kb.nextLine();
+		System.out.println();
 
 		if (userChoice.equalsIgnoreCase("hit")) {
 			player.addCardToHand(dealer.dealCard());
