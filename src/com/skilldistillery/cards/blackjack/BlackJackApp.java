@@ -21,7 +21,6 @@ public class BlackJackApp {
 		System.out.println("*******************Welcome to BlackJack*******************");
 
 		while (playerIsPlaying && player.getBetMoney() > 0) {
-			System.out.println(dealer.getBetMoney());
 			// Stop looping each sides turn when false
 			boolean playerTurn = true;
 			boolean dealerTurn = true;
