@@ -36,7 +36,7 @@ public class BlackJackApp {
 						System.out.println("Player is BUST");
 					}
 					if(player.scoreOfTwentyOne()) {
-						System.out.println(player.handValue());
+						currentValue(player);
 						System.out.println();
 					}
 				}
@@ -93,6 +93,10 @@ public class BlackJackApp {
 			System.out.println();
 			System.out.println("You beat the dealer. Get your chips.");
 		} else if (pushedHand) {
+			if(player.declareBlackJack() && dealer.declareBlackJack()) {
+				System.out.println();
+				System.out.println("DOUBLE BLACKJACK");
+			}
 			System.out.println("Its a push");
 		} else if (dealer.declareBlackJack() && !player.isBust()) {
 			System.out.println("Dealer hit blackjack. You lose.");
@@ -106,6 +110,10 @@ public class BlackJackApp {
 			dealer.addCardToHand(dealer.dealCard());
 			dealer.lookAtHand();
 			currentValue(dealer);
+			
+			if(dealer.handValue() >= 17) {
+				return false;
+			}
 			return true;
 		} else {
 			System.out.println();
@@ -146,7 +154,7 @@ public class BlackJackApp {
 		System.out.println();
 
 		int startCount = 2;
-
+		//comment out this line to see the soft ace activate if not seen during gameplay
 		dealer.shuffleDeck();
 
 		while (startCount != 0) {

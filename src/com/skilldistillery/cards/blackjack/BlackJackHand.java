@@ -3,13 +3,11 @@ package com.skilldistillery.cards.blackjack;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import com.skilldistillery.cards.common.Card;
 import com.skilldistillery.cards.common.Hand;
 
 public class BlackJackHand extends Hand{
 	private int addedCards = 0;
-	private final int blackJackNumber = 21;
 	
 	public BlackJackHand() {
 		super();
@@ -21,12 +19,18 @@ public class BlackJackHand extends Hand{
 		for (Card card : super.cards) {
 			value += card.getValue();
 		}
-		return value;
+		// change here or in isSoft to see push from Blackjack on both sides
+		return isSoft(value);
+		
 	}
 	
+	//if no cards dealt beyond initial draw and 21 in hand
 	public boolean isBlackJack() {
-		return getHandValue() == blackJackNumber && addedCards < 3;
-
+		return getHandValue() == BlackJackApp.BLACKJACKNUMBER && addedCards < 3;
+	}
+	//hand value greater than 21
+	public boolean isBust() {
+		return getHandValue() > BlackJackApp.BLACKJACKNUMBER;
 	}
 	
 	@Override
@@ -34,17 +38,27 @@ public class BlackJackHand extends Hand{
 		super.cards.add(card);
 		addedCards++;
 	}
-	
-	public boolean isBust() {
-		return getHandValue() > blackJackNumber;
-	}
-	
+		
 	public List<Card> getCards(){
 		List<Card> clonedCards = new ArrayList<>();
 		clonedCards.addAll(super.cards);
 		return clonedCards;
-		
 	}
 	
+	public int isSoft(int value) {
+		int aceValue = 11;
+		boolean aceInHand = false;
+		
+		for (Card card : super.cards) {
+			if(card.getValue() == aceValue) {
+				aceInHand = true;
+			}
+		}
+		if(value > BlackJackApp.BLACKJACKNUMBER && aceInHand) {
+			System.out.println("Soft Ace Activated");
+			return value - 10;
+		}
+		return value;
+	}
 	//TODO Options  isSoft()  isHard()
 }
