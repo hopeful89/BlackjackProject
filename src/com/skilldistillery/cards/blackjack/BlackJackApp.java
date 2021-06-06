@@ -3,9 +3,11 @@ package com.skilldistillery.cards.blackjack;
 import java.util.Scanner;
 
 public class BlackJackApp {
+	//TODO consider a table class than has Player[] with options to allow more players or use more players as split hand
 	private Player player = new Player();
 	private Dealer dealer = new Dealer();
 	private Scanner kb = new Scanner(System.in);
+	private int winMultiplier = 2;
 	private int playerBet = 0;
 
 	public static void main(String[] args) {
@@ -20,6 +22,7 @@ public class BlackJackApp {
 
 		System.out.println("*******************Welcome to BlackJack*******************");
 
+		//while player hasn't quit and hasn't lost their money
 		while (playerIsPlaying && player.getBetMoney() > 0) {
 			// Stop looping each sides turn when false
 			boolean playerTurn = true;
@@ -136,12 +139,12 @@ public class BlackJackApp {
 			System.out.println();
 			System.out.println("The dealer hand was");
 			dealer.lookAtHand();
-			player.winBetMoney(playerBet * 2);
+			player.winBetMoney(playerBet * (int)(Math.pow(winMultiplier, 2)));
 
 		} else if (playerWins) {
 			System.out.println();
 			System.out.println("You beat the dealer. Get your chips.");
-			player.winBetMoney(playerBet);
+			player.winBetMoney(playerBet * winMultiplier);
 		} else if (pushedHand) {
 			if (player.declareBlackJack() && dealer.declareBlackJack()) {
 				System.out.println();
@@ -174,7 +177,7 @@ public class BlackJackApp {
 			return false;
 		}
 	}
-
+	// Print value of hand for either player
 	public void currentValue(Player player) {
 		System.out.println("Current value: " + player.handValue());
 		System.out.println();
@@ -216,9 +219,10 @@ public class BlackJackApp {
 	public void dealCardsStart() {
 		int startCount = 2;
 		// comment out the shuffle to see the soft ace activate if not seen during
-		// gameplay keep hitting to see the second as well
+		// game play keep hitting to see the second as well
 		dealer.shuffleDeck();
-
+		
+		//deal out cards one each and show hand
 		while (startCount != 0) {
 			player.addCardToHand(dealer.dealCard());
 			player.lookAtHand();
@@ -228,7 +232,7 @@ public class BlackJackApp {
 		}
 	}
 
-	// clears each hand, gets a new deck if below dealer threshold, resets bet
+	// clears each hand, gets a new deck if below dealer threshold, resets player bet
 	public void resetGameToStart() {
 		dealer.getNewDeck();
 		player.foldHand();

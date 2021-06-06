@@ -46,7 +46,7 @@ public class Player {
 	}
 
 	public void winBetMoney(int betMoney) {
-		this.betMoney += (betMoney * 2) ;
+		this.betMoney += betMoney ;
 	}
 	
 	public void loseBetMoney(int betMoney) {

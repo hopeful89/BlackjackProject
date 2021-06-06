@@ -11,6 +11,7 @@ public class BlackJackHand extends Hand{
 	public static final int BLACKJACKNUMBER = 21;
 	private final int removeSoftAce = 10;
 	private int addedCards = 0;
+
 	
 	public BlackJackHand() {
 		super();
@@ -35,7 +36,7 @@ public class BlackJackHand extends Hand{
 		return value;
 	}
 	
-	//determine is value exceeds 21 and ace in hand - 10 or return supplied value
+	//determine is value exceeds 21 again adjust value for numOfAces
 	public int isSoft(int value, int numOfAces) {
 		while(value > BLACKJACKNUMBER && numOfAces > 0) {
 			value -= removeSoftAce;
